@@ -760,7 +760,7 @@ const STEP_OPTS = {
   egg:    () => ["egg-muffin","omelette"],
   pastry: () => ["viennoiserie"]
 };
-const IMGV = 13;
+const IMGV = 14;
 
 const NAMES = {
   ru:{"msamen-classic":"Мсемен классический","croque-madame":"Крок-мадам","shakshouka":"Шакшука","cilbir-turkish":"Чылбыр (яйца по-турецки)",
@@ -887,9 +887,14 @@ const euro = p => Number(p).toFixed(2).replace(".", ",") + " €";
 const byId = Object.fromEntries([...DISHES, ...DRINKS, ...FORMULAS].map(d => [d.id, d]));
 const isFormula = d => FORMULAS.includes(d);
 const isDrink = d => DRINKS.includes(d);
-const imgSrc = d => `img/${d.id}.jpg?v=${IMGV}`;
-const imgSm = d => `img/480/${d.id}.jpg?v=${IMGV}`;
-const srcset = d => `${imgSm(d)} 480w, ${imgSrc(d)} 1000w`;
+
+const IMG_W = [240, 480, 720, 1000];
+const imgAt = (id, w, ext) => `img/${w === 1000 ? "" : w + "/"}${id}.${ext}?v=${IMGV}`;
+const setOf = (id, ext, ws) => ws.map(w => `${imgAt(id, w, ext)} ${w}w`).join(", ");
+const pic = (id, sizes, attrs, ws = IMG_W) => `<picture><source type="image/avif" srcset="${setOf(id, "avif", ws)}" sizes="${sizes}"><source type="image/webp" srcset="${setOf(id, "webp", ws)}" sizes="${sizes}"><img src="img/${ws.includes(1000) ? "" : "480/"}${id}.jpg?v=${IMGV}" sizes="${sizes}" ${attrs}></picture>`;
+
+const FIRST_F = new Set(FORMULAS.slice(0, 3).map(f => f.id));
+const picSm = (id, sizes) => pic(id, sizes, `alt="" loading="lazy" decoding="async"`, [240, 480]);
 const HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.6 7.6 3.9 4.5 7.2 4.5c2 0 3.5 1.1 4.8 2.8 1.3-1.7 2.8-2.8 4.8-2.8 3.3 0 5.6 3.1 4.4 6.6-1.7 4.8-9.2 9.4-9.2 9.4Z"/></svg>`;
 const LOGO = `<svg class="logo" viewBox="0 0 1544 1864" aria-hidden="true"><g transform="translate(0,1864) scale(0.1,-0.1)" fill="currentColor"><path class="lg-steam" d="M12625 18259 c-230 -21 -547 -135 -761 -274 -140 -92 -388 -300 -480 -403 -268 -301 -384 -463 -517 -721 -44 -86 -83 -160 -87 -166 -4 -5 -17 -37 -30 -70 -64 -168 -184 -380 -300 -535 -31 -41 -83 -115 -116 -165 -69 -107 -201 -262 -339 -401 -195 -196 -540 -388 -788 -438 -94 -19 -325 -53 -457 -66 -171 -18 -211 -30 -263 -79 -41 -37 -58 -75 -58 -129 -1 -62 14 -99 59 -145 75 -79 173 -131 336 -181 450 -137 1041 -104 1439 81 184 86 427 213 497 259 313 209 427 301 651 524 278 278 520 572 643 782 26 46 63 108 81 138 43 71 137 235 189 330 32 59 71 105 186 220 207 206 294 267 607 431 175 92 373 141 568 141 202 0 361 -42 550 -145 108 -59 140 -71 188 -75 57 -4 57 -4 107 45 45 45 50 55 50 95 0 62 -33 109 -182 254 -103 102 -154 141 -313 246 -307 202 -373 236 -636 328 -312 109 -552 144 -824 119z"/><path class="lg-nine" d="M13365 14383 c-670 -27 -1276 -84 -1640 -153 -88 -16 -268 -50 -400 -75 -411 -78 -853 -185 -996 -240 -49 -19 -91 -35 -95 -35 -22 0 -392 -174 -491 -231 -229 -132 -566 -428 -746 -656 -125 -158 -278 -402 -347 -553 -93 -207 -178 -490 -206 -690 -25 -178 -29 -443 -9 -620 19 -178 27 -220 83 -425 65 -240 167 -488 281 -685 132 -226 202 -339 250 -403 98 -129 294 -358 401 -470 206 -214 539 -488 740 -610 52 -32 127 -78 165 -102 39 -25 156 -87 260 -138 217 -107 291 -161 430 -311 217 -235 285 -396 285 -669 -1 -311 -71 -558 -280 -982 -115 -234 -186 -344 -331 -515 -169 -198 -725 -742 -934 -915 -522 -430 -1185 -1078 -1589 -1553 -66 -78 -145 -170 -174 -204 -50 -60 -160 -219 -236 -343 -82 -134 -205 -401 -263 -570 -51 -148 -66 -284 -41 -366 16 -57 70 -114 126 -136 45 -17 142 -18 2337 -18 2463 0 2342 -3 2384 51 10 13 42 83 70 156 29 73 65 162 81 198 86 192 96 220 265 695 24 66 66 176 95 245 28 69 105 280 170 470 171 500 176 513 194 548 20 38 71 192 201 607 54 171 104 323 112 338 17 33 94 266 127 382 126 442 158 549 223 745 67 205 104 336 208 740 65 254 106 404 157 575 46 151 111 437 198 860 16 77 37 176 48 220 11 44 28 121 37 170 9 50 29 137 45 195 36 136 159 857 195 1153 9 70 27 198 40 285 14 86 34 229 46 317 11 88 29 214 39 280 11 65 29 218 40 340 11 121 24 270 30 330 5 61 17 182 25 270 32 346 78 1670 73 2090 -4 319 -8 341 -65 363 -90 34 -499 53 -1108 50 -242 -1 -471 -3 -510 -5z m-532 -1797 c153 -42 252 -110 301 -204 47 -90 44 -367 -9 -877 -14 -132 -32 -312 -40 -400 -35 -370 -101 -685 -176 -837 -34 -67 -106 -162 -172 -226 -120 -114 -264 -163 -482 -163 -142 0 -214 10 -361 52 -320 91 -658 334 -844 608 -84 124 -184 333 -231 486 -44 140 -44 140 -43 300 0 160 0 160 42 273 51 138 80 197 145 290 56 81 198 221 314 310 124 94 198 133 473 248 128 54 401 131 530 150 131 18 473 12 553 -10z"/><path class="lg-k" d="M438 14303 c-15 -3 -37 -16 -48 -30 -18 -24 -20 -40 -20 -207 0 -99 5 -298 10 -441 13 -363 77 -1413 95 -1570 8 -71 21 -213 30 -315 20 -242 44 -465 55 -515 5 -22 18 -114 30 -205 11 -91 34 -248 50 -350 16 -102 37 -246 45 -320 9 -74 25 -189 36 -255 11 -66 31 -196 44 -290 45 -323 75 -492 160 -900 24 -115 57 -275 73 -355 17 -80 40 -183 51 -230 11 -47 32 -143 46 -215 74 -369 122 -578 195 -835 82 -291 101 -362 119 -440 19 -84 83 -331 141 -545 16 -60 43 -146 59 -190 30 -82 93 -284 156 -505 49 -169 112 -373 137 -440 11 -30 38 -104 60 -165 22 -60 65 -182 95 -270 29 -88 80 -239 113 -335 32 -96 79 -222 103 -280 80 -188 86 -203 137 -345 132 -363 163 -441 222 -560 17 -33 43 -91 58 -130 154 -386 251 -617 269 -639 13 -16 110 -229 176 -386 63 -150 95 -205 136 -226 24 -12 307 -14 1982 -14 1847 0 1956 1 1975 18 21 17 25 30 23 68 -1 23 -105 207 -185 329 -29 44 -91 145 -138 225 -139 236 -195 329 -270 445 -38 61 -104 169 -145 240 -41 72 -94 159 -117 195 -84 127 -164 256 -185 297 -21 43 -161 276 -227 379 -20 32 -82 141 -137 243 -55 102 -117 218 -138 256 -52 93 -129 253 -190 395 -28 63 -61 140 -74 170 -13 30 -43 96 -66 145 -84 181 -112 243 -181 415 -125 312 -155 383 -203 490 -67 148 -138 330 -201 510 -30 85 -65 182 -79 215 -48 120 -105 326 -105 381 0 108 48 118 232 49 179 -67 234 -104 467 -315 91 -83 401 -446 481 -565 28 -41 71 -101 97 -132 93 -115 333 -370 424 -450 217 -190 298 -258 359 -301 36 -26 101 -74 145 -108 111 -84 291 -200 410 -264 55 -29 125 -68 155 -86 129 -77 384 -151 605 -175 135 -14 334 -6 508 21 282 44 407 95 700 284 274 178 579 542 709 847 102 236 158 532 158 831 0 346 -91 740 -214 930 -71 108 -296 369 -513 594 -127 132 -480 490 -785 795 -553 554 -553 554 -634 684 -84 136 -160 280 -225 428 -45 104 -114 349 -129 460 -15 117 -13 419 5 518 34 195 108 381 231 579 203 326 287 443 513 721 91 111 383 417 558 585 274 263 474 435 608 524 137 91 176 143 126 170 -12 6 -97 10 -208 10 -104 0 -423 7 -708 15 -286 8 -729 19 -985 25 -442 10 -736 19 -1325 40 -143 5 -324 10 -401 10 -192 0 -187 4 -262 -210 -24 -69 -56 -165 -71 -215 -16 -49 -53 -162 -83 -250 -30 -88 -81 -239 -113 -335 -32 -96 -69 -200 -82 -230 -24 -54 -137 -364 -193 -530 -55 -162 -139 -385 -201 -535 -22 -53 -152 -407 -198 -540 -16 -45 -36 -96 -45 -114 -10 -18 -35 -74 -55 -125 -36 -85 -84 -200 -203 -479 -59 -138 -115 -249 -189 -369 -110 -178 -139 -208 -192 -194 -34 8 -103 136 -152 281 -42 123 -115 458 -140 640 -9 66 -23 151 -31 188 -7 37 -25 163 -39 280 -15 117 -35 264 -45 327 -11 63 -31 225 -45 360 -14 135 -27 254 -30 266 -6 27 -42 419 -50 544 -3 52 -19 282 -35 510 -16 228 -32 471 -35 540 -8 164 -16 187 -69 210 -22 10 -68 21 -101 25 -33 3 -107 13 -165 20 -58 8 -188 22 -289 30 -101 9 -269 27 -375 40 -105 13 -262 31 -348 40 -86 8 -264 28 -395 45 -131 16 -305 36 -388 45 -82 8 -204 24 -270 35 -66 11 -214 29 -330 40 -289 27 -287 27 -317 23z"/></g></svg>`;
 function ensureFont(l){
@@ -923,7 +928,7 @@ const favBtn = d => { const q = sel[d.id] || 0; return `<button class="fav${q ? 
 function card(d){
   const tags = tagHtml(d);
   const media = d.img
-    ? `<span class="ph"><img src="${imgSrc(d)}" srcset="${srcset(d)}" sizes="(max-width:640px) 150px, 400px" alt="${esc(dName(d))}" loading="lazy" decoding="async" width="1000" height="1000"></span>`
+    ? `<span class="ph">${pic(d.id, "(max-width:640px) 150px, 370px", `alt="${esc(dName(d))}" loading="lazy" decoding="async" width="1000" height="1000"`)}</span>`
     : `<span class="ph ph-empty" aria-hidden="true">${LOGO}</span>`;
   const orig = (lang === "ru" || lang === "zh") ? `<small class="orig">${esc(d.n)}</small>` : "";
   const desc = dDesc(d).split("|").join(" · ");
@@ -938,7 +943,7 @@ function card(d){
 function fcard(d){
   const note = d.grp === "solo" ? t("perPerson") : d.grp === "quick" ? t("until11") : "";
   return `<div class="fcard reveal${d.grp === "quick" ? " dark" : ""}" data-id="${d.id}" data-k="${keyOf(d)}" tabindex="0" role="button">
-    <span class="f-ph"><img src="${imgSrc(d)}" srcset="${srcset(d)}" sizes="(max-width:640px) 50vw, 300px" alt="${esc(d.n)}" loading="lazy" decoding="async" width="1000" height="1000"></span>
+    <span class="f-ph">${pic(d.id, d.grp === "quick" ? "(max-width:640px) 92vw, 370px" : "(max-width:640px) 45vw, 370px", `alt="${esc(d.n)}" ${FIRST_F.has(d.id) ? `fetchpriority="high"` : `loading="lazy"`} decoding="async" width="1000" height="1000"`)}</span>
     <span class="f-name">${esc(dName(d))}${note ? `<small>${esc(note)}</small>` : ""}</span>
     <span class="f-price">${pr(d.p)}<small>€</small></span>
     <ul class="f-inc">${d.inc.map(([k, n]) => `<li>${esc(T[lang].inc[k](n))}</li>`).join("")}</ul>
@@ -1129,7 +1134,7 @@ function openDish(id, keep){
   else allgHtml = `<p class="d-note">${t("allgAsk")}</p>`;
   const desc = dDesc(d);
   $("dishBody").innerHTML = `
-    <div class="d-ph">${d.img ? `<img src="${imgSrc(d)}" alt="${esc(dName(d))}">` : LOGO}</div>
+    <div class="d-ph">${d.img ? pic(d.id, "(max-width:640px) 100vw, 600px", `alt="${esc(dName(d))}"`) : LOGO}</div>
     <div class="d-body">
       ${tags ? `<div class="tags">${tags}</div>` : ""}
       <div class="d-top"><h3 class="d-name" id="dName">${esc(dName(d))}</h3><span class="price">${pr(d.p)} €</span></div>
@@ -1139,7 +1144,7 @@ function openDish(id, keep){
       <div class="d-block"><h4>${t("allergens")}</h4>${allgHtml}</div>
       <button class="cta${q ? " on" : ""}" type="button" data-add="${id}">${HEART}<span>${q ? t("added") : t("add")}</span></button>
       <div class="d-block"><h4>${t("pair")}</h4><div class="pairs">${pairsFor(d).map(x => `
-        <button class="pair" type="button" data-open="${x.id}"><img src="${imgSm(x)}" alt="" loading="lazy"><span>${esc(dName(x))}<small>${pr(x.p)} €</small></span></button>`).join("")}</div></div>
+        <button class="pair" type="button" data-open="${x.id}">${picSm(x.id, "(max-width:640px) 32vw, 170px")}<span>${esc(dName(x))}<small>${pr(x.p)} €</small></span></button>`).join("")}</div></div>
     </div>`;
   openSheet(dish);
   if (!keep) $("dishPanel").scrollTop = 0;
@@ -1152,8 +1157,8 @@ $("dishBody").addEventListener("click", e => {
 
 const optLabel = k => byId[k] ? dName(byId[k]) : (OPT[k][lang] || OPT[k].en || OPT[k].fr);
 const optFr = k => byId[k] ? byId[k].n : OPT[k].fr;
-const optImg = k => byId[k] ? (byId[k].img ? imgSm(byId[k]) : "") : (OPT[k].img ? `img/480/${OPT[k].img}.jpg?v=${IMGV}` : "");
-const thumb = k => optImg(k) ? `<img src="${optImg(k)}" alt="" loading="lazy">` : `<span class="o-ph"></span>`;
+const optImg = k => byId[k] ? (byId[k].img ? byId[k].id : "") : (OPT[k].img || "");
+const thumb = k => optImg(k) ? picSm(optImg(k), "(max-width:640px) 30vw, 170px") : `<span class="o-ph"></span>`;
 let fb = null;
 function openBuilder(id){
   const f = byId[id]; if (!f) return;
@@ -1222,11 +1227,11 @@ function renderSel(){
   });
   $("selBody").innerHTML = `<h3 class="d-name" id="selTitle">${t("mySel")}</h3>` + (count ? `
     <ul class="sel-list">${selF.map((x, i) => `
-      <li class="sel-row"><img src="${imgSm(byId[x.f])}" alt="">
+      <li class="sel-row">${picSm(byId[x.f].id, "54px")}
         <span class="nm">${esc(byId[x.f].n)}<small>${euro(byId[x.f].p)}</small><small class="picks">${esc(x.picks.map(optLabel).join(" · "))}</small></span>
         <span class="step"><button type="button" data-fstep="${i}" data-n="-1" aria-label="−">−</button><span>1</span><button type="button" data-fstep="${i}" data-n="1" aria-label="+">+</button></span>
       </li>`).join("")}${items.map(({d, q}) => `
-      <li class="sel-row">${d.img ? `<img src="${imgSm(d)}" alt="">` : `<span class="ph-mini"></span>`}
+      <li class="sel-row">${d.img ? picSm(d.id, "54px") : `<span class="ph-mini"></span>`}
         <span class="nm">${esc(dName(d))}<small>${euro(d.p)}</small></span>
         <span class="step"><button type="button" data-step="${d.id}" data-n="-1" aria-label="−">−</button><span>${q}</span><button type="button" data-step="${d.id}" data-n="1" aria-label="+">+</button></span>
       </li>`).join("")}</ul>
