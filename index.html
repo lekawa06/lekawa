@@ -452,6 +452,7 @@ html:lang(zh) :is(.hero .h1t,.sec-head h2,.d-name,.waiter h2){letter-spacing:.02
   .item{transform:none!important}
 }
 </style>
+<script type="module">import { initAnalytics } from "./kbir-analytics.js"; initAnalytics();</script>
 </head>
 <body class="locked">
 
@@ -469,10 +470,10 @@ html:lang(zh) :is(.hero .h1t,.sec-head h2,.d-name,.waiter h2){letter-spacing:.02
     <div class="hero-actions">
       <span class="badge">★ <span data-i18n="badge">Top 100 tables de France · TheFork</span></span>
       <div class="lang" role="group" aria-label="Langue / Language">
-        <button type="button" data-l="fr" aria-pressed="true">FR</button>
-        <button type="button" data-l="en" aria-pressed="false">EN</button>
-        <button type="button" data-l="ru" aria-pressed="false">RU</button>
-        <button type="button" data-l="zh" aria-pressed="false" lang="zh">中文</button>
+        <button type="button" data-l="fr" data-track="lang" data-track-label="Langue · FR" aria-pressed="true">FR</button>
+        <button type="button" data-l="en" data-track="lang" data-track-label="Langue · EN" aria-pressed="false">EN</button>
+        <button type="button" data-l="ru" data-track="lang" data-track-label="Langue · RU" aria-pressed="false">RU</button>
+        <button type="button" data-l="zh" data-track="lang" data-track-label="Langue · 中文" aria-pressed="false" lang="zh">中文</button>
       </div>
     </div>
   </div>
@@ -488,11 +489,11 @@ html:lang(zh) :is(.hero .h1t,.sec-head h2,.d-name,.waiter h2){letter-spacing:.02
   <div class="nav-in">
     <div class="tabs" role="tablist">
       <span class="pill" id="pill"></span>
-      <button class="tab" role="tab" aria-selected="true" data-f="all"><span data-i18n="all">Tout</span><small id="cAll"></small></button>
-      <button class="tab" role="tab" aria-selected="false" data-f="formules"><span data-i18n="formules">Formules</span><small id="cForm"></small></button>
-      <button class="tab" role="tab" aria-selected="false" data-f="sale"><span data-i18n="sale">Salé</span><small id="cSale"></small></button>
-      <button class="tab" role="tab" aria-selected="false" data-f="sucre"><span data-i18n="sucre">Sucré</span><small id="cSucre"></small></button>
-      <button class="tab" role="tab" aria-selected="false" data-f="drinks"><span data-i18n="drinks">Drinks</span><small id="cDrinks"></small></button>
+      <button class="tab" role="tab" aria-selected="true" data-f="all" data-track="category" data-track-label="Catégorie · Tout"><span data-i18n="all">Tout</span><small id="cAll"></small></button>
+      <button class="tab" role="tab" aria-selected="false" data-f="formules" data-track="category" data-track-label="Catégorie · Formules"><span data-i18n="formules">Formules</span><small id="cForm"></small></button>
+      <button class="tab" role="tab" aria-selected="false" data-f="sale" data-track="category" data-track-label="Catégorie · Salé"><span data-i18n="sale">Salé</span><small id="cSale"></small></button>
+      <button class="tab" role="tab" aria-selected="false" data-f="sucre" data-track="category" data-track-label="Catégorie · Sucré"><span data-i18n="sucre">Sucré</span><small id="cSucre"></small></button>
+      <button class="tab" role="tab" aria-selected="false" data-f="drinks" data-track="category" data-track-label="Catégorie · Boissons"><span data-i18n="drinks">Drinks</span><small id="cDrinks"></small></button>
     </div>
     <label class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -947,7 +948,7 @@ function card(d){
     : `<span class="ph ph-empty" aria-hidden="true">${LOGO}</span>`;
   const orig = (lang === "ru" || lang === "zh") ? `<small class="orig">${esc(d.n)}</small>` : "";
   const desc = dDesc(d).split("|").join(" · ");
-  return `<div class="item reveal" data-id="${d.id}" data-k="${keyOf(d)}" tabindex="0" role="button" aria-label="${esc(dName(d))}, ${euro(d.p)}">
+  return `<div class="item reveal" data-id="${d.id}" data-track="dish" data-track-label="${esc(d.n)}" data-k="${keyOf(d)}" tabindex="0" role="button" aria-label="${esc(dName(d))}, ${euro(d.p)}">
     ${media}${tags ? `<span class="tags float">${tags}</span>` : ""}${favBtn(d)}
     <div class="body">
       <span class="name">${esc(dName(d))}${dSub(d) ? `<small>${esc(dSub(d))}</small>` : ""}${orig}${desc ? `<span class="desc">${esc(desc)}</span>` : ""}</span>
@@ -957,7 +958,7 @@ function card(d){
 }
 function fcard(d){
   const note = d.grp === "solo" ? t("perPerson") : d.grp === "quick" ? t("until11") : "";
-  return `<div class="fcard reveal${d.grp === "quick" ? " dark" : ""}" data-id="${d.id}" data-k="${keyOf(d)}" tabindex="0" role="button">
+  return `<div class="fcard reveal${d.grp === "quick" ? " dark" : ""}" data-id="${d.id}" data-track="dish" data-track-label="Formule · ${esc(d.n)}" data-k="${keyOf(d)}" tabindex="0" role="button">
     <span class="f-ph">${pic(d.id, d.grp === "quick" ? "(max-width:640px) 92vw, 370px" : "(max-width:640px) 45vw, 370px", `alt="${esc(d.n)}" ${FIRST_F.has(d.id) ? `fetchpriority="high"` : `loading="lazy"`} decoding="async" width="1000" height="1000"`)}</span>
     <span class="f-name">${esc(dName(d))}${note ? `<small>${esc(note)}</small>` : ""}</span>
     <span class="f-price">${pr(d.p)}<small>€</small></span>
