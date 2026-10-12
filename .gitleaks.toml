@@ -1,0 +1,9 @@
+# Clé Firebase Web des statistiques de visite : publique par conception,
+# protégée par les règles Firestore. Aucune autre exception.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Clé Firebase Web publique (statistiques de visite)"
+regexTarget = "match"
+regexes = ['''AIzaSyAGnYBsx5w4kz-Z3RUgG3CK7Df04GE9E8U''']
