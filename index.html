@@ -762,7 +762,8 @@ const VARS = {
 };
 const SWEET_BASE = ["pancakes-nutella","pancakes-erable","pancakes-caramel","pain-perdu-nutella","pain-perdu-erable","pain-perdu-caramel"];
 const STEP_OPTS = {
-  hot:    () => DRINKS.filter(d => d.grp === "hot" && !d.extra).map(d => d.id),
+
+  hot:    f => [...(f.tier === "sig" ? DRINKS.filter(d => d.grp === "sig" && !d.extra) : []), ...DRINKS.filter(d => d.grp === "hot" && !d.extra)].map(d => d.id),
   juice:  () => ["jus-pomme","jus-ananas","jus-goyave"],
   salty:  f => DISHES.filter(d => d.cat === "sale" && (d.grp === "must" || (f.tier === "sig" && d.grp === "sig"))).flatMap(d => d.v ? d.v.map(v => d.id + "~" + v) : [d.id]),
   sweet:  f => f.tier === "sig" ? [...SWEET_BASE, ...DISHES.filter(d => d.cat === "sucre" && d.grp !== "must").map(d => d.id)] : SWEET_BASE,
